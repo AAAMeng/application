@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 proxy_port = tuple(('7a', '31'))
-appName = 'QQMusic'
-txt_file = "rawData/"+appName+".txt"
-csv_file = "labeledData/"+appName+".csv"
+appName = 'Chrome'
+txt_file = "raw_data/" + appName + ".txt"
+csv_file = "labeled_data/" + appName + ".csv"
 app_label = {
     'WeChat': "1",
     'Bilibili': "2",
@@ -60,7 +60,7 @@ def rawdata_construct(df1, list1, sess_size=10, pck_str=16, pck_len=160):
     """
     # slice 16th~175th, column index keep same
     df1 = df1.iloc[:, pck_str:pck_str + pck_len]
-    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)
+    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)    # fill 0 into packet
     df1 = df1.fillna('0')
     sessions = pd.DataFrame()
     for k, v in list1.items():
@@ -74,6 +74,8 @@ def rawdata_construct(df1, list1, sess_size=10, pck_str=16, pck_len=160):
 
 
 def label_data(df1, sess_size, pck_len):
+    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into session
+    df1 = df1.fillna('0')
     df1[sess_size * pck_len] = app_label[appName]
     return df1
 
@@ -85,6 +87,7 @@ def write_into_csv(df1):
     """
     hex_list = df1.to_numpy()
     dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
+
     del df1
     df1 = pd.DataFrame(dec_list)
     df1.to_csv(csv_file)
