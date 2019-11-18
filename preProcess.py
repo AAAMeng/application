@@ -5,8 +5,8 @@ import pandas as pd
 
 proxy_port = tuple(('7a', '31'))
 appName = 'Chrome'
-txt_file = "raw_data/" + appName + ".txt"
-csv_file = "labeled_data/" + appName + ".csv"
+txt_file = "../dataset/raw_data/"+appName+".txt"
+csv_file = "../dataset/labeled_data/"+appName+".csv"
 app_label = {
     'WeChat': "1",
     'Bilibili': "2",
