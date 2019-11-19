@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 
 proxy_port = tuple(('7a', '31'))
 appName = 'QQMusic'
-txt_file = "../dataset/raw_data/" + appName + ".txt"
-csv_file = "../dataset/labeled_data/" + appName + "_simple.csv"
+txt_file = "../dataset/raw_data_simple/" + appName + ".txt"
+csv_file = "../dataset/labeled_data_simple/" + appName + "_simple.csv"
 app_label = {
     'WeChat': "1",
     'Bilibili': "2",
@@ -104,52 +104,31 @@ def write_into_csv(df1):
 if __name__ == "__main__":
     pd.set_option('mode.chained_assignment', None)
     start = time.time()
+    ''' 
+    # df = read_from_txt()
+    # write_into_csv(df)
+    '''
+    mydata = {}
+    read_from_csv(mydata)
 
-    df = read_from_txt()
-    # groupedBySrc = df.groupby([35, 36])  # return GroupBy Object
-    # groupedByDst = df.groupby([37, 38])
-    # listBySrc = groupedBySrc.indices
-    # listByDst = groupedByDst.indices
+    fig = go.Figure()
+    x_data = list(mydata.keys())
+    y_data = list(mydata.values())
+    colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)', 'rgba(44, 160, 101, 0.5)']
 
-    # session_merge(listBySrc, listByDst)
-    # appDF = rawdata_construct(df, listBySrc)
-    write_into_csv(df)
-    # mydata = {}
-    # read_from_csv(mydata)
-    #
-    # keys = list(mydata.keys())
-    # value = list(mydata.values())
-    # for k, v in mydata.items():
-    #     print(v)
+    for xd, yd, cls in zip(x_data, y_data, colors):
+        fig.add_trace(go.Box(
+            y=yd[20],
+            name=xd,
+            boxpoints='all',
+            jitter=0.5,
+            whiskerwidth=0.2,
+            fillcolor=cls,
+            marker_size=2,
+            line_width=1)
+        )
 
-
-
-    # fig = px.box(mydata,
-    #              x="byte", y="value", points="all",
-    #              title="different app byte distribution",)
-    # fig.show()
-
-    # fig = go.Figure()
-    #
-    # x_data = mydata.keys()
-    #
-    # y_data = [y0, y1, y2, y3, y4, y5]
-    #
-    # colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)', 'rgba(44, 160, 101, 0.5)']
-    #
-    # for xd, yd, cls in zip(x_data, mydata.get(), colors):
-    #     fig.add_trace(go.Box(
-    #         y=yd,
-    #         name=xd,
-    #         boxpoints='all',
-    #         jitter=0.5,
-    #         whiskerwidth=0.2,
-    #         fillcolor=cls,
-    #         marker_size=2,
-    #         line_width=1)
-    #     )
-    #
-    #
+    fig.show()
     # fig.add_trace(go.Box(
     #     y=[0.2, 0.2, 0.6, 1.0, 0.5, 0.4, 0.2, 0.7, 0.9, 0.1, 0.5, 0.3],
     #     x=mydata.keys(),
