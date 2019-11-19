@@ -2,6 +2,8 @@
 import time
 import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 proxy_port = tuple(('7a', '31'))
 appName = 'QQMusic'
@@ -34,6 +36,10 @@ def read_from_txt():
     df1 = df1[1].str.split('|', expand=True).drop([0], axis=1)
 
     return df1
+
+def read_from_csv(mydata):
+    for k, v in app_label.items():
+        mydata[k] = pd.read_csv("../dataset/labeled_data/" + k + "_simple.csv")  # read from csv data and contruct ndarray
 
 
 def session_merge(dict1, dict2):
@@ -106,4 +112,47 @@ if __name__ == "__main__":
     # session_merge(listBySrc, listByDst)
     # appDF = rawdata_construct(df, listBySrc)
     write_into_csv(df)
+    # mydata = {}
+    # read_from_csv(mydata)
+    #
+    # keys = list(mydata.keys())
+    # value = list(mydata.values())
+    # for k, v in mydata.items():
+    #     print(v)
+
+
+
+    # fig = px.box(mydata,
+    #              x="byte", y="value", points="all",
+    #              title="different app byte distribution",)
+    # fig.show()
+
+    # fig = go.Figure()
+    #
+    # x_data = mydata.keys()
+    #
+    # y_data = [y0, y1, y2, y3, y4, y5]
+    #
+    # colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)', 'rgba(44, 160, 101, 0.5)']
+    #
+    # for xd, yd, cls in zip(x_data, mydata.get(), colors):
+    #     fig.add_trace(go.Box(
+    #         y=yd,
+    #         name=xd,
+    #         boxpoints='all',
+    #         jitter=0.5,
+    #         whiskerwidth=0.2,
+    #         fillcolor=cls,
+    #         marker_size=2,
+    #         line_width=1)
+    #     )
+    #
+    #
+    # fig.add_trace(go.Box(
+    #     y=[0.2, 0.2, 0.6, 1.0, 0.5, 0.4, 0.2, 0.7, 0.9, 0.1, 0.5, 0.3],
+    #     x=mydata.keys(),
+    #     name='QQMusic',
+    #     marker_color='#3D9970'
+    # ))
+
     print("\nPreprocessed finished cost time:%f" % (time.time() - start))
