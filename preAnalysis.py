@@ -35,6 +35,8 @@ def read_from_txt():
     df1 = df1[0].str.split('  ', expand=True)
     df1 = df1[1].str.split('|', expand=True).drop([0], axis=1)
 
+    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)    # fill 0 into packet
+    df1 = df1.fillna('0')
     return df1
 
 def read_from_csv(mydata):
