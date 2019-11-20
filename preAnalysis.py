@@ -6,7 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 proxy_port = tuple(('7a', '31'))
-appName = 'QQMusic'
+appName = 'Chrome'
 txt_file = "../dataset/raw_data_simple/" + appName + ".txt"
 csv_file = "../dataset/labeled_data_simple/" + appName + "_simple.csv"
 app_label = {
@@ -14,14 +14,14 @@ app_label = {
     'Bilibili': "2",
     'QQMusic': "3",
     'Chrome': "4",
-    'app1': "5",
-    'app2': "6",
-    'app3': "7",
-    'app4': "8",
-    'app5': "9",
-    'app6': "a",
-    'app7': "b",
-    'app8': "c"
+    # 'app1': "5",
+    # 'app2': "6",
+    # 'app3': "7",
+    # 'app4': "8",
+    # 'app5': "9",
+    # 'app6': "a",
+    # 'app7': "b",
+    # 'app8': "c"
 }
 
 
@@ -35,13 +35,18 @@ def read_from_txt():
     df1 = df1[0].str.split('  ', expand=True)
     df1 = df1[1].str.split('|', expand=True).drop([0], axis=1)
 
-    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)    # fill 0 into packet
+    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into packet
     df1 = df1.fillna('0')
     return df1
 
-def read_from_csv(mydata):
+
+def read_from_csv():
+    data = {}
     for k, v in app_label.items():
-        mydata[k] = pd.read_csv("../dataset/labeled_data/" + k + "_simple.csv")  # read from csv data and contruct ndarray
+        tmp = pd.read_csv(
+            "../dataset/labeled_data_simple/" + k + "_simple.csv")  # read from csv data and contruct ndarray
+        data[k] = tmp.reindex(np.random.permutation(tmp.index))  # random sort
+    return data
 
 
 def session_merge(dict1, dict2):
@@ -68,7 +73,7 @@ def rawdata_construct(df1, list1, sess_size=10, pck_str=16, pck_len=160):
     """
     # slice 16th~175th, column index keep same
     df1 = df1.iloc[:, pck_str:pck_str + pck_len]
-    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)    # fill 0 into packet
+    df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into packet
     df1 = df1.fillna('0')
     sessions = pd.DataFrame()
     for k, v in list1.items():
@@ -104,21 +109,22 @@ def write_into_csv(df1):
 if __name__ == "__main__":
     pd.set_option('mode.chained_assignment', None)
     start = time.time()
-    ''' 
+    # data file operation
     # df = read_from_txt()
     # write_into_csv(df)
-    '''
-    mydata = {}
-    read_from_csv(mydata)
+    # ---------------------------------------------------------------------------------
+
+    # data visualization
+    mydata = read_from_csv()
 
     fig = go.Figure()
     x_data = list(mydata.keys())
-    y_data = list(mydata.values())
-    colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)', 'rgba(44, 160, 101, 0.5)']
+    colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 144, 14, 0.5)', 'rgba(44, 160, 101, 0.5)', 'rgba(255, 65, 54, 0.5)']
 
-    for xd, yd, cls in zip(x_data, y_data, colors):
+    #     print(mydata.get('Bilibili').iloc[0:500, 20])
+    for xd, cls in zip(x_data, colors):
         fig.add_trace(go.Box(
-            y=yd[20],
+            y=mydata.get(xd).iloc[0:500, 20],
             name=xd,
             boxpoints='all',
             jitter=0.5,
@@ -128,12 +134,29 @@ if __name__ == "__main__":
             line_width=1)
         )
 
+    fig.update_layout(
+        title='Byte Distribution',
+        yaxis=dict(
+            autorange=True,
+            showgrid=True,
+            zeroline=True,
+            dtick=5,
+            gridcolor='rgb(255, 255, 255)',
+            gridwidth=1,
+            zerolinecolor='rgb(255, 255, 255)',
+            zerolinewidth=2,
+        ),
+        margin=dict(
+            l=40,
+            r=30,
+            b=80,
+            t=100,
+        ),
+        paper_bgcolor='rgb(243, 243, 243)',
+        plot_bgcolor='rgb(243, 243, 243)',
+        showlegend=False
+    )
+
     fig.show()
-    # fig.add_trace(go.Box(
-    #     y=[0.2, 0.2, 0.6, 1.0, 0.5, 0.4, 0.2, 0.7, 0.9, 0.1, 0.5, 0.3],
-    #     x=mydata.keys(),
-    #     name='QQMusic',
-    #     marker_color='#3D9970'
-    # ))
 
     print("\nPreprocessed finished cost time:%f" % (time.time() - start))
