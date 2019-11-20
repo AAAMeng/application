@@ -44,6 +44,11 @@ def update_figure(input_value):
     for xd in x_data:
         traces.append(
             go.Box(
+                y=mydata.get(xd).iloc[0:500, int(input_value * 10)],
+                name=xd,
+                boxpoints='suspectedoutliers',
+                boxmean=True,
+                marker_size=2,
                 marker=dict(
                     outliercolor='rgba(219, 64, 82, 0.6)',
                     line=dict(
@@ -52,21 +57,6 @@ def update_figure(input_value):
                 line_width=1))
     return {"data": traces,
             "layout": go.Layout(title='Byte Distribution(v.1.3)',
-                                # yaxis=dict(
-                                #     autorange=True,
-                                #     showgrid=True,
-                                #     zeroline=True,
-                                #     dtick=5,
-                                #     gridcolor='rgb(255, 255, 255)',
-                                #     gridwidth=5,
-                                #     zerolinecolor='rgb(255, 255, 255)',
-                                #     zerolinewidth=1,
-                                # ),
-                                # margin=dict(
-                                #     l=30,
-                                #     r=30,
-                                #     b=80
-                                # ),
                                 showlegend=True,
                                 autosize=True, )
             }, '(Start from 1)\nCurrent Byte: ' + str(int(input_value * 10))
