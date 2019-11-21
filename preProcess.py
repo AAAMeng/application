@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 proxy_port = tuple(('7a', '31'))
-# appName = 'Chrome'
 # txt_file = "../dataset/raw_data/"+appName+".txt"
 # csv_file = "../dataset/labeled_data/"+appName+".csv"
 app_label = {
@@ -54,9 +53,8 @@ def packet_list(dict1, dict2):
 def session_merge(data):
     """
     Function: merge the packets which belong to same session
-    :param dict1: packet index sort by src.port
-    :param dict2: packet index sort by dst.port
-    :return: merge result stored in dict1
+    :param data: a Dict contain all DataFrame of each Application. s.t. data={'app1':app1_df, ...}
+    :return: lists[Chrome] = {port1:[1,2,10,33,....], port2:[3,4,5,6,....],...}
     """
     lists = {}
     for aName, df in data.items():
@@ -72,8 +70,8 @@ def session_merge(data):
 def rawdata_format(data, lists, sess_size=10, pck_str=16, pck_len=160):
     """
     Function: transform raw data into intended format(1 row = 1 session with 10 packets and 160bytes/packet)
-    :param df1: raw data
-    :param list1: array of the index which belongs to same session
+    :param data: a Dict contain all DataFrame of each Application. s.t. data={'app1':app1_df, ...}
+    :param lists: lists[Chrome] = {port1:[1,2,10,33,....], port2:[3,4,5,6,....],...}
     :param sess_size: number of packet selected from one session
     :param pck_str: packet start position
     :param pck_len: packet length(fixed)
@@ -92,7 +90,7 @@ def rawdata_format(data, lists, sess_size=10, pck_str=16, pck_len=160):
                 s = pd.concat([df.iloc[i] for i in l[0:sess_size]], axis=0, ignore_index=True)
                 sessions = pd.concat([sessions, s], axis=1, ignore_index=True)
         data[aName] = label_data(aName, sessions.T, sess_size, pck_len)
-    print(aName + '·····[Done]')
+        print(aName + '·····[Done]')
     return data
 
 
@@ -120,6 +118,7 @@ def write_into_csv(data):
 if __name__ == "__main__":
     pd.set_option('mode.chained_assignment', None)
     start = time.time()
+    print("--------------------START--------------------")
     print("1. Read from txt:")
     pData = read_from_txt()
     print('---------------------------------------------')
