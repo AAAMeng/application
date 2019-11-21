@@ -95,7 +95,7 @@ lstm_hidden_layers = 2
 train_iter = 30000
 
 # cnn network
-_X = tf.placeholder(tf.float32, [None, img_shape])
+_X = tf.compat.v1.placeholder(tf.float32, [None, img_shape])
 y = tf.placeholder(tf.int32, [None, classes_num])
 keep_prob = tf.placeholder(tf.float32)
 
@@ -137,7 +137,7 @@ W_fc1 = weight_variable([8 * 8 * 64, 1024])
 b_fc1 = bias_variable([1024])
 pool_2_flat = tf.reshape(pool_2, [-1, 8 * 8 * 64])
 cnn_fc1 = tf.matmul(pool_2_flat, W_fc1) + b_fc1
-cnn_fc1_drop = tf.nn.dropout(cnn_fc1, keep_prob)
+cnn_fc1_drop = tf.nn.dropout(cnn_fc1, rate=1-keep_prob)
 
 W_fc2 = weight_variable([1024, classes_num])
 b_fc2 = bias_variable([classes_num])
@@ -151,7 +151,7 @@ predictions = {
 # loss = -tf.reduce_mean(y*tf.log(predictions["probabilities"]))
 # loss = tf.losses.mean_squared_error(y,predictions["probabilities"])
 y = tf.one_hot(indices=tf.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
-loss = tf.losses.softmax_cross_entropy(y, logits)
+loss = tf.compat.v1.losses.softmax_cross_entropy(y, logits)
 
 train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, ).minimize(loss)
 correct_prediction = tf.equal(predictions["classes"], tf.argmax(y, axis=1))
@@ -162,17 +162,17 @@ FP = tf.compat.v1.metrics.false_positives(labels=tf.argmax(y, axis=1), predictio
 TN = tf.compat.v1.metrics.true_negatives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
 FN = tf.compat.v1.metrics.false_negatives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
 recall = tf.compat.v1.metrics.recall(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
-tf_accuracy = tf.metrics.accuracy(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
+tf_accuracy = tf.compat.v1.metrics.accuracy(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
 
-config = tf.ConfigProto()
+config = tf.compat.v1.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.7
 config.gpu_options.allow_growth = True
 
-sess = tf.Session()
+sess = tf.compat.v1.Session()
 
 print("\n" + "=" * 50 + "Benign Training" + "=" * 50)
 sess.run(tf.compat.v1.global_variables_initializer())
-sess.run(tf.local_variables_initializer())  # 初始化局部变量
+sess.run(tf.compat.v1.local_variables_initializer())  # 初始化局部变量
 _batch_size = 128
 mydata_train = DataSet(data_train, label_train)
 start = time.time()
