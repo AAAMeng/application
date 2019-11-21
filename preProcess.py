@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 proxy_port = tuple(('7a', '31'))
-appName = 'Chrome'
+# appName = 'Chrome'
 # txt_file = "../dataset/raw_data/"+appName+".txt"
 # csv_file = "../dataset/labeled_data/"+appName+".csv"
 app_label = {
@@ -40,6 +40,7 @@ def read_from_txt(fillna=True):
             df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into packet
             df1 = df1.fillna('0')
         data[k] = df1
+        print(k+'·····[Done]')
     return data
 
 
@@ -64,10 +65,11 @@ def session_merge(data):
         list_by_src = grouped_by_src.indices
         list_by_dst = grouped_by_dst.indices
         lists[aName] = packet_list(list_by_src, list_by_dst)
+        print(aName + '·····[Done]')
     return lists
 
 
-def rawdata_construct(data, lists, sess_size=10, pck_str=16, pck_len=160):
+def rawdata_format(data, lists, sess_size=10, pck_str=16, pck_len=160):
     """
     Function: transform raw data into intended format(1 row = 1 session with 10 packets and 160bytes/packet)
     :param df1: raw data
@@ -89,14 +91,15 @@ def rawdata_construct(data, lists, sess_size=10, pck_str=16, pck_len=160):
             else:
                 s = pd.concat([df.iloc[i] for i in l[0:sess_size]], axis=0, ignore_index=True)
                 sessions = pd.concat([sessions, s], axis=1, ignore_index=True)
-        data[aName] = label_data(sessions.T, sess_size, pck_len)
+        data[aName] = label_data(aName, sessions.T, sess_size, pck_len)
+    print(aName + '·····[Done]')
     return data
 
 
-def label_data(df1, sess_size, pck_len):
+def label_data(aname, df1, sess_size, pck_len):
     df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into session
     df1 = df1.fillna('0')
-    df1[sess_size * pck_len] = app_label[appName]
+    df1[sess_size * pck_len] = app_label[aname]
     return df1
 
 
@@ -111,19 +114,21 @@ def write_into_csv(data):
 
         df1 = pd.DataFrame(dec_list)
         df1.to_csv("../dataset/labeled_data/" + fname + ".csv")
+        print(fname + '·····[Done]')
 
 
 if __name__ == "__main__":
     pd.set_option('mode.chained_assignment', None)
     start = time.time()
-
+    print("1. Read from txt:")
     pData = read_from_txt()
-    # groupedBySrc = df.groupby([35, 36])  # return GroupBy Object
-    # groupedByDst = df.groupby([37, 38])
-    # listBySrc = groupedBySrc.indices
-    # listByDst = groupedByDst.indices
-
+    print('---------------------------------------------')
+    print("2. Merge session:")
     pList = session_merge(pData)
-    sData = rawdata_construct(pData, pList)
+    print('---------------------------------------------')
+    print("3. Format session:")
+    sData = rawdata_format(pData, pList)
+    print('---------------------------------------------')
+    print("4. Write into csv:")
     write_into_csv(sData)
     print("\nPreprocessed finished cost time:%f" % (time.time() - start))
