@@ -11,7 +11,6 @@
 """
 import numpy as np
 
-
 class DataSet(object):
     def __init__(self, samples, labels=None):
         assert samples.shape[0] == labels.shape[0], (
@@ -39,7 +38,6 @@ class DataSet(object):
         return self._epochs_completed
 
     def next_batch(self, batch_size, shuffle=True):
-
         start = self._index_in_epoch
         # shuffle for the first epoch
         if self._epochs_completed == 0 and start == 0 and shuffle:

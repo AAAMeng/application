@@ -76,20 +76,19 @@ data_train, data_test, label_train, label_test = train_test_split(x_raw, y_raw, 
 print("\n dataset prepared,cost time:%d" % (time.time() - start))
 
 
-# ==========================================================================
+# ============================MODEL TRAIN===================================
 def labels_transform(mlist, classes):
     batch_label = np.zeros((len(mlist), classes), dtype="i4")
     for i in range(len(mlist)):
-        batch_label[i][mlist[i]] = 1
+        batch_label[i][mlist[i]-1] = 1
     return batch_label
 
 
-# ============================MODEL TRAIN===================================
 # parameter
 learning_rate = 0.0005
 img_shape = 40 * 40
-classes_num = 2
-batch_size = tf.placeholder(tf.int32, [])
+classes_num = 4
+batch_size = tf.compat.v1.placeholder(tf.int32, [])
 lstm_input_size = 160
 lstm_timestep_size = 10
 lstm_hidden_layers = 2
@@ -102,7 +101,7 @@ keep_prob = tf.placeholder(tf.float32)
 
 
 def weight_variable(shape):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1))
+    return tf.Variable(tf.random.truncated_normal(shape, stddev=0.1))
 
 
 def bias_variable(shape):
@@ -114,7 +113,7 @@ def conv2d(x, W):
 
 
 def max_pool(x):
-    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="VALID")
+    return tf.nn.max_pool2d(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="VALID")
 
 
 # 40*40*1
@@ -154,16 +153,15 @@ predictions = {
 y = tf.one_hot(indices=tf.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
 loss = tf.losses.softmax_cross_entropy(y, logits)
 
-train_op = tf.train.AdamOptimizer(learning_rate=learning_rate, ).minimize(loss)
-
+train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate, ).minimize(loss)
 correct_prediction = tf.equal(predictions["classes"], tf.argmax(y, axis=1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-TP = tf.metrics.true_positives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
-FP = tf.metrics.false_positives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
-TN = tf.metrics.true_negatives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
-FN = tf.metrics.false_negatives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
-recall = tf.metrics.recall(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
+TP = tf.compat.v1.metrics.true_positives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
+FP = tf.compat.v1.metrics.false_positives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
+TN = tf.compat.v1.metrics.true_negatives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
+FN = tf.compat.v1.metrics.false_negatives(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
+recall = tf.compat.v1.metrics.recall(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
 tf_accuracy = tf.metrics.accuracy(labels=tf.argmax(y, axis=1), predictions=predictions["classes"])
 
 config = tf.ConfigProto()
@@ -173,7 +171,7 @@ config.gpu_options.allow_growth = True
 sess = tf.Session()
 
 print("\n" + "=" * 50 + "Benign Training" + "=" * 50)
-sess.run(tf.global_variables_initializer())
+sess.run(tf.compat.v1.global_variables_initializer())
 sess.run(tf.local_variables_initializer())  # 初始化局部变量
 _batch_size = 128
 mydata_train = DataSet(data_train, label_train)
