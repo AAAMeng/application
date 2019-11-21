@@ -12,11 +12,13 @@
 import tensorflow as tf
 import numpy as np
 import time
+import os
 from dataSet import DataSet
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 proxy_port = tuple(('7a', '31'))
 # appName = 'Chrome'
 # txt_file = "../dataset/raw_data_simple/" + appName + ".txt"
@@ -92,11 +94,11 @@ batch_size = tf.compat.v1.placeholder(tf.int32, [])
 lstm_input_size = 160
 lstm_timestep_size = 10
 lstm_hidden_layers = 2
-train_iter = 30000
+train_iter = 3000
 
 # cnn network
 _X = tf.compat.v1.placeholder(tf.float32, [None, img_shape])
-y = tf.placeholder(tf.int32, [None, classes_num])
+y = tf.compat.v1.placeholder(tf.int32, [None, classes_num])
 keep_prob = tf.placeholder(tf.float32)
 
 
