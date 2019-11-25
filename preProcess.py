@@ -7,10 +7,10 @@ proxy_port = tuple(('7a', '31'))
 # txt_file = "../dataset/raw_data/"+appName+".txt"
 # csv_file = "../dataset/labeled_data/"+appName+".csv"
 app_label = {
+    'Chrome': "0",
     'WeChat': "1",
     'Bilibili': "2",
     'QQMusic': "3",
-    'Chrome': "4",
     # 'app1': "5",
     # 'app2': "6",
     # 'app3': "7",

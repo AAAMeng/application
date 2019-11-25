@@ -4,10 +4,10 @@ import numpy as np
 
 sample_num = 4
 app_label = {
+    'Chrome': "0",
     'WeChat': "1",
     'Bilibili': "2",
     'QQMusic': "3",
-    'Chrome': "4",
     # 'app1': "5",
     # 'app2': "6",
     # 'app3': "7",
