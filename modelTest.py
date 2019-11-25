@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 
+tf.compat.v1.disable_v2_behavior()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 proxy_port = tuple(('7a', '31'))
 # appName = 'Chrome'
@@ -104,10 +105,14 @@ y = tf.compat.v1.placeholder(tf.int32, [None, classes_num])
 keep_prob = tf.compat.v1.placeholder(tf.float32)
 
 
+# weight initialization, shape is the dimension of output vector, stddev is Standard deviation of normal distribution
+# tf.random.truncated_normal:从截断的正态分布中输出随机值, 即tf.truncated_normal中如果x的取值在区间（μ-2σ，μ+2σ）之外则重新进行选择
+# 这样保证了生成的值都在均值附近
 def weight_variable(shape):
     return tf.Variable(tf.random.truncated_normal(shape, stddev=0.1))
 
 
+# bias initialization, Constant 1-D 32 tensor populated with scalar value 0.1
 def bias_variable(shape):
     return tf.Variable(tf.constant(0.1, shape=shape))
 
