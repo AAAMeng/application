@@ -59,7 +59,9 @@ def discard_fiv_tuple(data):
 def read_data():
     feature = []
     for fname in app_label.keys():
-        feature.append(data2feature(pd.read_csv("../dataset/labeled_data/" + fname + ".csv")))
+        df = pd.read_csv("../dataset/labeled_data/" + fname + ".csv")
+        feature.append(data2feature(df))
+        print(fname + " count:" + str(df.shape[0]))
     return feature
 
 
@@ -99,7 +101,7 @@ train_iter = 3000
 # cnn network
 _X = tf.compat.v1.placeholder(tf.float32, [None, img_shape])
 y = tf.compat.v1.placeholder(tf.int32, [None, classes_num])
-keep_prob = tf.placeholder(tf.float32)
+keep_prob = tf.compat.v1.placeholder(tf.float32)
 
 
 def weight_variable(shape):
