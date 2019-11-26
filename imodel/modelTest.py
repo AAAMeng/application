@@ -13,7 +13,7 @@ import tensorflow as tf
 import numpy as np
 import time
 import os
-from dataSet import DataSet
+from iclass.dataSet import DataSet
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
@@ -88,7 +88,7 @@ print("\n dataset prepared,cost time:%d" % (time.time() - start))
 def labels_transform(mlist, classes):
     batch_label = np.zeros((len(mlist), classes), dtype="i4")
     for i in range(len(mlist)):
-        batch_label[i][mlist[i]-1] = 1
+        batch_label[i][mlist[i] - 1] = 1
     return batch_label
 
 
@@ -153,7 +153,7 @@ W_fc1 = weight_variable([8 * 8 * 64, 1024])
 b_fc1 = bias_variable([1024])
 pool_2_flat = tf.reshape(pool_2, [-1, 8 * 8 * 64])
 cnn_fc1 = tf.compat.v1.matmul(pool_2_flat, W_fc1) + b_fc1
-cnn_fc1_drop = tf.compat.v1.nn.dropout(cnn_fc1, rate=1-keep_prob)
+cnn_fc1_drop = tf.compat.v1.nn.dropout(cnn_fc1, rate=1 - keep_prob)
 
 W_fc2 = weight_variable([1024, classes_num])
 b_fc2 = bias_variable([classes_num])
@@ -163,7 +163,6 @@ predictions = {
     "classes": tf.compat.v1.argmax(input=logits, axis=1),  # return the index withe largest value across row
     "probabilities": tf.compat.v1.nn.softmax(logits, name="softmax_tensor")
 }
-
 
 # y is the true label of the dataset
 y = tf.compat.v1.one_hot(indices=tf.compat.v1.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
@@ -213,7 +212,7 @@ true_positives = 0
 false_positives = 0
 true_negatives = 0
 false_negatives = 0
-test_batch_size = 200
+test_batch_size = 400
 preLabel = []
 mlabel = []
 test_iter = len(data_test) // test_batch_size + 1

@@ -9,14 +9,11 @@
 ------------      -------    --------    -----------
 2019/11/20 14:44      xm         1.0          None
 """
-import random
-import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.figure_factory as ff
 from preAnalysis import read_from_txt
-
 app = dash.Dash(__name__)
 
 mydata = read_from_txt(fillna=False)
@@ -29,10 +26,6 @@ app.layout = html.Div([
         id='my-graph',
         figure=ff.create_distplot(y_data, x_data, bin_size=20, histnorm='probability')
     ),
-    # dcc.Graph(
-    #     id='my-graph-2',
-    #     figure=ff.create_distplot(y_data, x_data, bin_size=20, histnorm='probability')
-    # )
 ])
 
 

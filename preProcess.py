@@ -39,7 +39,7 @@ def read_from_txt(fillna=True):
             df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into packet
             df1 = df1.fillna('0')
         data[k] = df1
-        print(k+'·····[Done]')
+        print(k+' ... [Done]')
     return data
 
 
@@ -63,7 +63,7 @@ def session_merge(data):
         list_by_src = grouped_by_src.indices
         list_by_dst = grouped_by_dst.indices
         lists[aName] = packet_list(list_by_src, list_by_dst)
-        print(aName + '·····[Done]')
+        print(aName + ' ... [Done]')
     return lists
 
 
@@ -90,7 +90,7 @@ def rawdata_format(data, lists, sess_size=10, pck_str=16, pck_len=160):
                 s = pd.concat([df.iloc[i] for i in l[0:sess_size]], axis=0, ignore_index=True)
                 sessions = pd.concat([sessions, s], axis=1, ignore_index=True)
         data[aName] = label_data(aName, sessions.T, sess_size, pck_len)
-        print(aName + '·····[Done]')
+        print(aName + ' ... [Done]')
     return data
 
 
@@ -112,7 +112,7 @@ def write_into_csv(data):
 
         df1 = pd.DataFrame(dec_list)
         df1.to_csv("../dataset/labeled_data/" + fname + ".csv")
-        print(fname + '·····[Done]')
+        print(fname + ' ... [Done]')
 
 
 if __name__ == "__main__":

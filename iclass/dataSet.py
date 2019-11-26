@@ -62,6 +62,7 @@ class DataSet(object):
                 self._samples = self.samples[perm]
                 self._labels = self.labels[perm]
             # start next batch
+            # back to the beginning
             start = 0
             self._index_in_epoch = batch_size - rest_num_examples
             end = self._index_in_epoch
