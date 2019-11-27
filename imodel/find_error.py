@@ -215,15 +215,16 @@ false_negatives = 0
 test_batch_size = 390
 preLabel = []
 mlabel = []
-test_iter = len(data_test) // test_batch_size + 1
+test_iter = len(data_test)
 
 mydata_test = DataSet(data_test, label_test)
 print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
 
 for i in range(test_iter):
-    alist = np.ones(4)*label_test[i]
+    alist = []
+    labels = labels_transform(alist.append(label_test[i]), classes_num)
     preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)),
-                                                           y: np.reshape(alist, (-1, 4)), keep_prob: 1.0})
+                                                           y: np.reshape(labels, (-1, 4)), keep_prob: 1.0})
     if preLabel[0] != label_test[i]:
         print(" Error " + str(i) + ": ", label_test[i], "->", preLabel[0], data_test[i])
