@@ -10,6 +10,7 @@
 2019/11/21 15:05      xm         1.0          None
 """
 import sys
+sys.path.append("..")
 import tensorflow as tf
 import numpy as np
 import time
@@ -19,9 +20,6 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 
-current_directory = os.path.dirname(os.path.abspath(__file__))
-root_path = os.path.abspath(os.path.dirname(current_directory) + os.path.sep + ".")
-sys.path.append(root_path)
 
 tf.compat.v1.disable_v2_behavior()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
