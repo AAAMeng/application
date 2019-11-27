@@ -103,7 +103,7 @@ classes_num = 4
 lstm_input_size = 160
 lstm_timestep_size = 10
 lstm_hidden_layers = 2
-train_iter = 3000
+train_iter = 400
 
 # cnn network
 _X = tf.compat.v1.placeholder(tf.float32, [None, img_shape])
@@ -222,6 +222,7 @@ print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
 
 for i in range(test_iter):
+    print(label_test[i])
     preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)),
                                                            y: label_test[i], keep_prob: 1.0})
     if preLabel != label_test[i]:
