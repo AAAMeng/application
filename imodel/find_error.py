@@ -99,7 +99,7 @@ def labels_transform(mlist, classes):
 learning_rate = 0.0005
 img_shape = 40 * 40
 classes_num = 4
-batch_size = tf.compat.v1.placeholder(tf.int32, [])
+# batch_size = tf.compat.v1.placeholder(tf.int32, [])
 lstm_input_size = 160
 lstm_timestep_size = 10
 lstm_hidden_layers = 2
@@ -200,12 +200,10 @@ for i in range(train_iter):
     labels = labels_transform(batch[1], classes_num)
     # print train_accuracy every 200 iterations
     if (i + 1) % 200 == 0:
-        train_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels,
-                                                       keep_prob: 1.0, batch_size: _batch_size})
+        train_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0})
         print("\n the %dth loop,training accuracy:%f" % (i + 1, train_accuracy))
 
-    sess.run(train_op, feed_dict={_X: batch[0], y: labels, keep_prob: 0.5,
-                                  batch_size: _batch_size})
+    sess.run(train_op, feed_dict={_X: batch[0], y: labels, keep_prob: 0.5})
 
 print("\n training finished cost time:%f" % (time.time() - start))
 # ============================MODEL TEST===================================
@@ -224,54 +222,6 @@ print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
 
 for i in range(test_iter):
-    preLabel = sess.run(predictions["classes"], feed_dict={_X: data_test[i], y: label_test[i], keep_prob: 1.0,
-                                                                           batch_size: 1})
+    preLabel = sess.run(predictions["classes"], feed_dict={_X: data_test[i], y: label_test[i], keep_prob: 1.0})
     if preLabel != label_test[i]:
         print(" error " + i + ": " + label_test[i] + "->" + preLabel + "[ " + mydata_test[i] + " ]")
-# for i in range(test_iter):
-#     batch = mydata_test.next_batch(test_batch_size)
-#     mlabel = mlabel + list(batch[1])
-#     labels = labels_transform(batch[1], classes_num)
-#
-#     e_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-#     tensor_tp, value_tp = sess.run(TP, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-#     tensor_fp, value_fp = sess.run(FP, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-#     tensor_tn, value_tn = sess.run(TN, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-#     tensor_fn, value_fn = sess.run(FN, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-#     preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: batch[0], y: labels, keep_prob: 1.0,
-#                                                                            batch_size: test_batch_size}))
-#     if (i + 1) % 200 == 0:
-#         train_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels,
-#                                                        keep_prob: 1.0, batch_size: _batch_size})
-#         print("\n the %dth loop,training accuracy:%f" % (i + 1, train_accuracy))
-#
-#
-#     test_accuracy = test_accuracy + e_accuracy
-#     true_positives = true_positives + value_tp
-#     false_positives = false_positives + value_fp
-#     true_negatives = true_negatives + value_tn
-#     false_negatives = false_negatives + value_fn
-#
-# print("\ntest cost time :%d" % (time.time() - test_start))
-# print("\n" + "=" * 50 + "Test result" + "=" * 50)
-# print("\n test accuracy :%f" % (test_accuracy / test_iter))
-# print("\n true positives :%d" % true_positives)
-# print("\n false positives :%d" % false_positives)
-# print("\n true negatives :%d" % true_negatives)
-# print("\n false negatives :%d" % false_negatives)
-# print("\n" + "=" * 50 + "  DataSet Describe  " + "=" * 50)
-# print("\nAll DataSet Number:%s ; Training DataSet Number:%s ; Test DataSet Number:%s" % (
-#     len(x_raw), len(data_train), len(data_test)))
-#
-# mP = true_positives / (true_positives + false_positives)
-# mR = true_positives / (true_positives + false_negatives)
-# mF1_score = 2 * mP * mR / (mP + mR)
-# print("\nPrecision:%f" % mP)
-# print("\nRecall:%f" % mR)
-# print("\nF1-Score:%f" % mF1_score)
-# conmat = confusion_matrix(mlabel, preLabel)
-# print("\nConfusion Matrix:")
-# print(conmat)
-# print(len(mlabel))
-#
-# print(preLabel)
