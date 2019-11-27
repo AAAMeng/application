@@ -223,8 +223,7 @@ test_start = time.time()
 
 for i in range(test_iter):
     alist = np.ones(4)*label_test[i]
-    print(alist)
     preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)),
-                                                           y: alist, keep_prob: 1.0})
+                                                           y: np.reshape(alist, (-1, 4)), keep_prob: 1.0})
     if preLabel != label_test[i]:
         print(" error " + i + ": " + label_test[i] + "->" + preLabel + "[ " + mydata_test[i] + " ]")
