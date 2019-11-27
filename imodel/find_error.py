@@ -227,5 +227,5 @@ for i in range(test_iter):
     labels = labels_transform(alist, classes_num)
     preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)),
                                                            y: np.reshape(labels, (-1, 4)), keep_prob: 1.0})
-    if preLabel[0] != label_test[i]:
-        print(" Error " + str(i) + ": ", label_test[i], "->", preLabel[0], data_test[i])
+    if preLabel[0] != np.argmax(labels):
+        print(" Error " + str(i) + ": ", np.argmax(labels), "->", preLabel[0], data_test[i])
