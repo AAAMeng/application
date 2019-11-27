@@ -199,7 +199,6 @@ for i in range(train_iter):
     if (i + 1) % 200 == 0:
         train_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels,
                                                        keep_prob: 1.0, batch_size: _batch_size})
-
         print("\n the %dth loop,training accuracy:%f" % (i + 1, train_accuracy))
 
     sess.run(train_op, feed_dict={_X: batch[0], y: labels, keep_prob: 0.5,
@@ -212,7 +211,7 @@ true_positives = 0
 false_positives = 0
 true_negatives = 0
 false_negatives = 0
-test_batch_size = 400
+test_batch_size = 390
 preLabel = []
 mlabel = []
 test_iter = len(data_test) // test_batch_size + 1
@@ -232,7 +231,12 @@ for i in range(test_iter):
     tensor_fn, value_fn = sess.run(FN, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
     preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: batch[0], y: labels, keep_prob: 1.0,
                                                                            batch_size: test_batch_size}))
+    if (i + 1) % 200 == 0:
+        train_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels,
+                                                       keep_prob: 1.0, batch_size: _batch_size})
+        print("\n the %dth loop,training accuracy:%f" % (i + 1, train_accuracy))
 
+    print("\ntensor_tp: "+tensor_fp)
     test_accuracy = test_accuracy + e_accuracy
     true_positives = true_positives + value_tp
     false_positives = false_positives + value_fp
@@ -260,3 +264,5 @@ conmat = confusion_matrix(mlabel, preLabel)
 print("\nConfusion Matrix:")
 print(conmat)
 print(len(mlabel))
+
+print(preLabel)
