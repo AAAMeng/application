@@ -10,6 +10,7 @@
 2019/11/21 15:05      xm         1.0          None
 """
 import sys
+
 sys.path.append("..")
 import tensorflow as tf
 import numpy as np
@@ -19,7 +20,6 @@ from iclass.dataSet import DataSet
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
-
 
 tf.compat.v1.disable_v2_behavior()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -222,6 +222,7 @@ print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
 
 for i in range(test_iter):
-    preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)), y: label_test[i], keep_prob: 1.0})
+    preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)),
+                                                           y: np.reshape(list(label_test[i]), (-1, 4)), keep_prob: 1.0})
     if preLabel != label_test[i]:
         print(" error " + i + ": " + label_test[i] + "->" + preLabel + "[ " + mydata_test[i] + " ]")
