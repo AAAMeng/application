@@ -13,7 +13,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.figure_factory as ff
-from preAnalysis import read_from_txt
+from igraph.preAnalysis import read_from_txt
 app = dash.Dash(__name__)
 
 mydata = read_from_txt(fillna=False)

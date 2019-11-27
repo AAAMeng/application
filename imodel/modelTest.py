@@ -63,7 +63,7 @@ def discard_fiv_tuple(data):
 def read_data():
     feature = []
     for fname in app_label.keys():
-        df = pd.read_csv("../dataset/labeled_data/" + fname + ".csv")
+        df = pd.read_csv("../../dataset/labeled_data/" + fname + ".csv")
         feature.append(data2feature(df))
         print(fname + " count:" + str(df.shape[0]))
     return feature

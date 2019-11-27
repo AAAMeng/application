@@ -9,14 +9,12 @@
 ------------      -------    --------    -----------
 2019/11/19 15:24      xm         1.0          None
 """
-import random
-import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
-from preAnalysis import read_from_csv
+from igraph.preAnalysis import read_from_csv
 
 app = dash.Dash(__name__)
 

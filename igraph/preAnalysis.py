@@ -32,7 +32,7 @@ def read_from_txt(fillna=True):
     # DataFrame Initialization
     data = {}
     for k, v in app_label.items():
-        df1 = pd.read_csv("../dataset/raw_data_simple/" + k + ".txt", sep="\n", header=None, engine='python',
+        df1 = pd.read_csv("../../dataset/raw_data_simple/" + k + ".txt", sep="\n", header=None, engine='python',
                           skiprows=lambda x: x % 4 != 2, dtype='str')  # read from csv data
         df1 = df1[0].str.split('  ', expand=True)
         df1 = df1[1].str.split('|', expand=True).drop([0], axis=1)
@@ -47,7 +47,7 @@ def read_from_csv():
     data = {}
     for k, v in app_label.items():
         tmp = pd.read_csv(
-            "../dataset/labeled_data_simple/" + k + "_simple.csv")  # read from csv data and contruct ndarray
+            "../../dataset/labeled_data_simple/" + k + "_simple.csv")  # read from csv data and contruct ndarray
         data[k] = tmp.reindex(np.random.permutation(tmp.index))  # random sort
     return data
 
@@ -62,7 +62,7 @@ def write_into_csv(data):
         dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
 
         df1 = pd.DataFrame(dec_list)
-        df1.to_csv("../dataset/labeled_data_simple/" + fname + "_simple.csv")
+        df1.to_csv("../../dataset/labeled_data_simple/" + fname + "_simple.csv")
 
 
 if __name__ == "__main__":
