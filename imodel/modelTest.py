@@ -91,7 +91,7 @@ print("\n dataset prepared,cost time:%d" % (time.time() - start))
 def labels_transform(mlist, classes):
     batch_label = np.zeros((len(mlist), classes), dtype="i4")
     for i in range(len(mlist)):
-        batch_label[i][mlist[i] - 1] = 1
+        batch_label[i][mlist[i]] = 1
     return batch_label
 
 

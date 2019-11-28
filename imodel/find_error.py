@@ -91,7 +91,7 @@ print("\n dataset prepared,cost time:%d" % (time.time() - start))
 def labels_transform(mlist, classes):
     batch_label = np.zeros((len(mlist), classes), dtype="i4")
     for i in range(len(mlist)):
-        batch_label[i][mlist[i] - 1] = 1
+        batch_label[i][mlist[i]] = 1
     return batch_label
 
 
@@ -103,7 +103,7 @@ classes_num = 4
 lstm_input_size = 160
 lstm_timestep_size = 10
 lstm_hidden_layers = 2
-train_iter = 400
+train_iter = 3000
 
 # cnn network
 _X = tf.compat.v1.placeholder(tf.float32, [None, img_shape])
@@ -220,7 +220,7 @@ test_iter = len(data_test)
 mydata_test = DataSet(data_test, label_test)
 print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
-
+count = 0
 for i in range(test_iter):
     alist = []
     alist.append(label_test[i])
@@ -228,4 +228,6 @@ for i in range(test_iter):
     preLabel = sess.run(predictions["classes"], feed_dict={_X: np.reshape(data_test[i], (-1, 1600)),
                                                            y: np.reshape(labels, (-1, 4)), keep_prob: 1.0})
     if preLabel[0] != np.argmax(labels):
+        count = count+1
         print(" Error " + str(i) + ": ", np.argmax(labels), "->", preLabel[0], data_test[i])
+print("count: ", count)
