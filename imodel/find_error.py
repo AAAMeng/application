@@ -206,6 +206,7 @@ test_iter = len(data_test)
 print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
 count = 0
+error_list = []
 for i in range(test_iter):
     alist = []
     alist.append(label_test[i])
@@ -215,5 +216,9 @@ for i in range(test_iter):
     if preLabel[0] != np.argmax(labels):
         count = count+1
         print(" Error " + str(i) + ": ", np.argmax(labels), "->", preLabel[0], data_test[i])
+        data_test[i].append(np.argmax(labels))
+        data_test[i].append(preLabel[0])
+        error_list.append(data_test[i])
+        pd.DataFrame(error_list).to_csv("../../dataset/false_clf/1128.csv")
 
 print("count: ", count)

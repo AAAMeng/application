@@ -269,8 +269,8 @@ print("\nAll DataSet Number:%s ; Training DataSet Number:%s ; Test DataSet Numbe
 # print("\nPrecision:%f" % mP)
 # print("\nRecall:%f" % mR)
 # print("\nF1-Score:%f" % mF1_score)
-with tf.Session() as sess:
-    conf = tf.confusion_matrix(mlabel, preLabel, num_classes=classes_num)  # 计算混淆矩阵
+with tf.compat.v1.Session() as sess:
+    conf = tf.math.confusion_matrix(mlabel, preLabel, num_classes=classes_num)  # 计算混淆矩阵
     print(conf.eval())
 
     conf_numpy = conf.eval()  # 将 Tensor 转化为 NumPy
@@ -278,7 +278,7 @@ with tf.Session() as sess:
 conf_df = pd.DataFrame(conf_numpy, index=app_label.keys(), columns=app_label.keys())  # 将矩阵转化为 DataFrame
 conf_fig = sn.heatmap(conf_df, annot=True, fmt="d", cmap="BuPu")  # 绘制 heatmap
 
-conmat = confusion_matrix(mlabel, preLabel)
+conmat = tf.math.confusion_matrix(mlabel, preLabel)
 print("\nConfusion Matrix:")
 print(conmat)
 
