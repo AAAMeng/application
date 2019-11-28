@@ -20,6 +20,7 @@ from iclass.dataSet import DataSet
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
+import seaborn as sn
 
 tf.compat.v1.disable_v2_behavior()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -176,12 +177,13 @@ train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimiz
 correct_prediction = tf.compat.v1.equal(predictions["classes"], tf.compat.v1.argmax(y, axis=1))
 accuracy = tf.compat.v1.reduce_mean(tf.compat.v1.cast(correct_prediction, tf.float32))
 
-TP = tf.compat.v1.metrics.true_positives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-FP = tf.compat.v1.metrics.false_positives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-TN = tf.compat.v1.metrics.true_negatives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-FN = tf.compat.v1.metrics.false_negatives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-recall = tf.compat.v1.metrics.recall(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-tf_accuracy = tf.compat.v1.metrics.accuracy(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
+# TP = tf.compat.v1.metrics.true_positives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
+# FP = tf.compat.v1.metrics.false_positives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
+# TN = tf.compat.v1.metrics.true_negatives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
+# FN = tf.compat.v1.metrics.false_negatives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
+# recall = tf.compat.v1.metrics.recall(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
+# precision = tf.compat.v1.metrics.precision_at_k(labels = ,predictions,k=1,class_id=None)
+# tf_accuracy = tf.compat.v1.metrics.accuracy(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
 
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.7
@@ -237,41 +239,47 @@ while begin < len(data_test):
     labels = labels_transform(label_batch, classes_num)
 
     e_accuracy = sess.run(accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_tp, value_tp = sess.run(TP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_fp, value_fp = sess.run(FP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_tn, value_tn = sess.run(TN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_fn, value_fn = sess.run(FN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    accuracy_new, value_ac = sess.run(tf_accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    # tensor_tp, value_tp = sess.run(TP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    # tensor_fp, value_fp = sess.run(FP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    # tensor_tn, value_tn = sess.run(TN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    # tensor_fn, value_fn = sess.run(FN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    # accuracy_new, value_ac = sess.run(tf_accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
 
     preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: data_batch, y: labels, keep_prob: 1.0,
                                                                            batch_size: test_batch_size}))
-    ac = ac + value_ac
-    test_accuracy = test_accuracy + e_accuracy
-    true_positives = true_positives + value_tp
-    false_positives = false_positives + value_fp
-    true_negatives = true_negatives + value_tn
-    false_negatives = false_negatives + value_fn
-    print(value_tp, value_fp, value_tn, value_fn)
 
+    test_accuracy = test_accuracy + e_accuracy
+    # true_positives = true_positives + value_tp
+    # false_positives = false_positives + value_fp
+    # true_negatives = true_negatives + value_tn
+    # false_negatives = false_negatives + value_fn
+    # print(value_tp, value_fp, value_tn, value_fn)
+
+# ============================TEST METRIC===================================
 print("\ntest cost time :%d" % (time.time() - test_start))
+
 print("\n" + "=" * 50 + "Test result" + "=" * 50)
-print("\n new accuracy :%f" % (ac / test_iter))
 print("\n test accuracy :%f" % (test_accuracy / test_iter))
-print("\n true positives :%d" % true_positives)
-print("\n false positives :%d" % false_positives)
-print("\n true negatives :%d" % true_negatives)
-print("\n false negatives :%d" % false_negatives)
 print("\n" + "=" * 50 + "  DataSet Describe  " + "=" * 50)
 print("\nAll DataSet Number:%s ; Training DataSet Number:%s ; Test DataSet Number:%s" % (
     len(x_raw), len(data_train), len(data_test)))
+# mP = true_positives / (true_positives + false_positives)
+# mR = true_positives / (true_positives + false_negatives)
+# mF1_score = 2 * mP * mR / (mP + mR)
+# print("\nPrecision:%f" % mP)
+# print("\nRecall:%f" % mR)
+# print("\nF1-Score:%f" % mF1_score)
+with tf.Session() as sess:
+    conf = tf.confusion_matrix(mlabel, preLabel, num_classes=classes_num)  # 计算混淆矩阵
+    print(conf.eval())
 
-mP = true_positives / (true_positives + false_positives)
-mR = true_positives / (true_positives + false_negatives)
-mF1_score = 2 * mP * mR / (mP + mR)
-print("\nPrecision:%f" % mP)
-print("\nRecall:%f" % mR)
-print("\nF1-Score:%f" % mF1_score)
+    conf_numpy = conf.eval()  # 将 Tensor 转化为 NumPy
+
+conf_df = pd.DataFrame(conf_numpy, index=app_label.keys(), columns=app_label.keys())  # 将矩阵转化为 DataFrame
+conf_fig = sn.heatmap(conf_df, annot=True, fmt="d", cmap="BuPu")  # 绘制 heatmap
+
 conmat = confusion_matrix(mlabel, preLabel)
 print("\nConfusion Matrix:")
 print(conmat)
-print(len(mlabel))
+
+
