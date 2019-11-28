@@ -168,20 +168,13 @@ predictions = {
 }
 
 # y is the true label of the dataset
-y = tf.compat.v1.one_hot(indices=tf.compat.v1.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
+# y = tf.compat.v1.one_hot(indices=tf.compat.v1.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
 loss = tf.compat.v1.losses.softmax_cross_entropy(y, logits)
 # loss = tf.compat.v1.losses.mean_squared_error(y,predictions["probabilities"]) # 均方差
 
 train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 correct_prediction = tf.compat.v1.equal(predictions["classes"], tf.compat.v1.argmax(y, axis=1))
 accuracy = tf.compat.v1.reduce_mean(tf.compat.v1.cast(correct_prediction, tf.float32))
-
-TP = tf.compat.v1.metrics.true_positives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-FP = tf.compat.v1.metrics.false_positives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-TN = tf.compat.v1.metrics.true_negatives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-FN = tf.compat.v1.metrics.false_negatives(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-recall = tf.compat.v1.metrics.recall(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
-tf_accuracy = tf.compat.v1.metrics.accuracy(labels=tf.compat.v1.argmax(y, axis=1), predictions=predictions["classes"])
 
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.7
@@ -207,17 +200,9 @@ for i in range(train_iter):
 
 print("\n training finished cost time:%f" % (time.time() - start))
 # ============================MODEL TEST===================================
-test_accuracy = 0
-true_positives = 0
-false_positives = 0
-true_negatives = 0
-false_negatives = 0
-test_batch_size = 390
 preLabel = []
 mlabel = []
 test_iter = len(data_test)
-
-mydata_test = DataSet(data_test, label_test)
 print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
 count = 0
@@ -230,4 +215,5 @@ for i in range(test_iter):
     if preLabel[0] != np.argmax(labels):
         count = count+1
         print(" Error " + str(i) + ": ", np.argmax(labels), "->", preLabel[0], data_test[i])
+
 print("count: ", count)
