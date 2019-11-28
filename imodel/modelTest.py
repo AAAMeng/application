@@ -168,7 +168,7 @@ predictions = {
 }
 
 # y is the true label of the dataset
-y = tf.compat.v1.one_hot(indices=tf.compat.v1.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
+# y = tf.compat.v1.one_hot(indices=tf.compat.v1.argmax(input=y, axis=1), depth=classes_num, dtype="int32")
 loss = tf.compat.v1.losses.softmax_cross_entropy(y, logits)
 # loss = tf.compat.v1.losses.mean_squared_error(y,predictions["probabilities"]) # 均方差
 
@@ -214,6 +214,7 @@ true_positives = 0
 false_positives = 0
 true_negatives = 0
 false_negatives = 0
+ac = 0
 test_batch_size = 200
 preLabel = []
 mlabel = []
@@ -240,9 +241,11 @@ while begin < len(data_test):
     tensor_fp, value_fp = sess.run(FP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
     tensor_tn, value_tn = sess.run(TN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
     tensor_fn, value_fn = sess.run(FN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    accuracy_new, value_ac = sess.run(tf_accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+
     preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: data_batch, y: labels, keep_prob: 1.0,
                                                                            batch_size: test_batch_size}))
-
+    ac = ac + value_ac
     test_accuracy = test_accuracy + e_accuracy
     true_positives = true_positives + value_tp
     false_positives = false_positives + value_fp
@@ -252,6 +255,7 @@ while begin < len(data_test):
 
 print("\ntest cost time :%d" % (time.time() - test_start))
 print("\n" + "=" * 50 + "Test result" + "=" * 50)
+print("\n new accuracy :%f" % (ac / test_iter))
 print("\n test accuracy :%f" % (test_accuracy / test_iter))
 print("\n true positives :%d" % true_positives)
 print("\n false positives :%d" % false_positives)
