@@ -10,6 +10,7 @@
 2019/11/21 15:05      xm         1.0          None
 """
 import sys
+
 sys.path.append("..")
 import tensorflow as tf
 import numpy as np
@@ -19,7 +20,6 @@ from iclass.dataSet import DataSet
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
-
 
 tf.compat.v1.disable_v2_behavior()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -189,7 +189,7 @@ config.gpu_options.allow_growth = True
 
 sess = tf.compat.v1.Session()
 
-print("\n" + "=" * 50 + "Benign Training" + "=" * 50)
+print("\n" + "=" * 50 + "Begin Training" + "=" * 50)
 sess.run(tf.compat.v1.global_variables_initializer())
 sess.run(tf.compat.v1.local_variables_initializer())  # 初始化局部变量
 _batch_size = 128
@@ -214,35 +214,41 @@ true_positives = 0
 false_positives = 0
 true_negatives = 0
 false_negatives = 0
-test_batch_size = 390
+test_batch_size = 200
 preLabel = []
 mlabel = []
 test_iter = len(data_test) // test_batch_size + 1
-
-mydata_test = DataSet(data_test, label_test)
+begin = 0
+end = test_batch_size
+# mydata_test = DataSet(data_test, label_test)
 print("\n" + "=" * 50 + "Benign test" + "=" * 50)
 test_start = time.time()
-for i in range(test_iter):
-    batch = mydata_test.next_batch(test_batch_size)
-    mlabel = mlabel + list(batch[1])
-    labels = labels_transform(batch[1], classes_num)
 
-    e_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_tp, value_tp = sess.run(TP, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_fp, value_fp = sess.run(FP, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_tn, value_tn = sess.run(TN, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    tensor_fn, value_fn = sess.run(FN, feed_dict={_X: batch[0], y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: batch[0], y: labels, keep_prob: 1.0,
+# batch = mydata_test.next_batch(test_batch_size, shuffle=False)  # no need to shuffle in test period
+# batch[0] = data_test
+while begin < len(data_test):
+    end = end if end < len(data_test) else len(data_test)
+    data_batch = data_test[begin:end]
+    label_batch = label_test[begin:end]
+    begin = end
+    end += test_batch_size
+    mlabel = mlabel + list(label_batch)
+    labels = labels_transform(label_batch, classes_num)
+
+    e_accuracy = sess.run(accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    tensor_tp, value_tp = sess.run(TP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    tensor_fp, value_fp = sess.run(FP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    tensor_tn, value_tn = sess.run(TN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    tensor_fn, value_fn = sess.run(FN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: data_batch, y: labels, keep_prob: 1.0,
                                                                            batch_size: test_batch_size}))
-    if (i + 1) % 200 == 0:
-        train_accuracy = sess.run(accuracy, feed_dict={_X: batch[0], y: labels,
-                                                       keep_prob: 1.0, batch_size: _batch_size})
-        print("\n the %dth loop,training accuracy:%f" % (i + 1, train_accuracy))
+
     test_accuracy = test_accuracy + e_accuracy
     true_positives = true_positives + value_tp
     false_positives = false_positives + value_fp
     true_negatives = true_negatives + value_tn
     false_negatives = false_negatives + value_fn
+    print(true_positives, false_positives, true_negatives, false_negatives)
 
 print("\ntest cost time :%d" % (time.time() - test_start))
 print("\n" + "=" * 50 + "Test result" + "=" * 50)
@@ -265,5 +271,3 @@ conmat = confusion_matrix(mlabel, preLabel)
 print("\nConfusion Matrix:")
 print(conmat)
 print(len(mlabel))
-
-print(preLabel)
