@@ -221,7 +221,7 @@ test_iter = len(data_test) // test_batch_size + 1
 begin = 0
 end = test_batch_size
 # mydata_test = DataSet(data_test, label_test)
-print("\n" + "=" * 50 + "Benign test" + "=" * 50)
+print("\n" + "=" * 50 + "Begin test" + "=" * 50)
 test_start = time.time()
 
 # batch = mydata_test.next_batch(test_batch_size, shuffle=False)  # no need to shuffle in test period
@@ -248,7 +248,7 @@ while begin < len(data_test):
     false_positives = false_positives + value_fp
     true_negatives = true_negatives + value_tn
     false_negatives = false_negatives + value_fn
-    print(true_positives, false_positives, true_negatives, false_negatives)
+    print(value_tp, value_fp, value_tn, value_fn)
 
 print("\ntest cost time :%d" % (time.time() - test_start))
 print("\n" + "=" * 50 + "Test result" + "=" * 50)
