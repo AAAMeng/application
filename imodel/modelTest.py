@@ -256,7 +256,7 @@ while begin < len(data_test):
     # print(value_tp, value_fp, value_tn, value_fn)
 
 # ============================TEST METRIC===================================
-print("\ntest cost time :%d" % (time.time() - test_start))
+print("\n test cost time :%d" % (time.time() - test_start))
 
 print("\n" + "=" * 50 + "Test result" + "=" * 50)
 print("\n test accuracy :%f" % (test_accuracy / test_iter))
