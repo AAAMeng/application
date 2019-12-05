@@ -47,7 +47,7 @@ def read_from_csv():
     data = {}
     for k, v in app_label.items():
         tmp = pd.read_csv(
-            "../../dataset/labeled_data_simple/" + k + "_simple.csv")  # read from csv data and contruct ndarray
+            "../../dataset/labeled_data_simple/" + k + "_simple.csv")  # read from csv data and construct ndarray
         data[k] = tmp.reindex(np.random.permutation(tmp.index))  # random sort
     return data
 

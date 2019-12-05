@@ -22,7 +22,7 @@ app_label = {
 # function:随机选取每个文件4个样本绘制灰度图
 def data2feature(f_name):
     feature = f_name.to_numpy()
-    feature = feature[:, 1:]  # first column, first row are index_num
+    feature = feature[:, 1:]  # first column is index_num
     np.random.shuffle(feature)  # 将流打乱(每行)
     return feature
 
@@ -30,7 +30,7 @@ def data2feature(f_name):
 def read_data():
     feature = []
     for fname in app_label.keys():
-        feature.append(data2feature(pd.read_csv("../dataset/labeled_data/" + fname + ".csv"))[:sample_num])
+        feature.append(data2feature(pd.read_csv("../../dataset/labeled_data/" + fname + ".csv"))[:sample_num])
     return feature
 
 
