@@ -2,7 +2,9 @@
 import time
 import numpy as np
 import pandas as pd
+import os
 
+rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
 proxy_port = tuple(('7a', '31'))
 # txt_file = "../dataset/raw_data/"+appName+".txt"
 # csv_file = "../dataset/labeled_data/"+appName+".csv"
@@ -31,7 +33,8 @@ def read_from_txt(fillna=True):
     # DataFrame Initialization
     data = {}
     for k, v in app_label.items():
-        df1 = pd.read_csv("../dataset/raw_data/" + k + ".txt", sep="\n", header=None, engine='python',
+        df1 = pd.read_csv(str(rootPath) + "dataset/raw_data_simple/" + k + ".txt", sep="\n", header=None,
+                          engine='python',
                           skiprows=lambda x: x % 4 != 2, dtype='str')  # read from csv data
         df1 = df1[0].str.split('  ', expand=True)
         df1 = df1[1].str.split('|', expand=True).drop([0], axis=1)
@@ -39,7 +42,7 @@ def read_from_txt(fillna=True):
             df1.replace(to_replace=r'^\s*$', value=np.nan, regex=True, inplace=True)  # fill 0 into packet
             df1 = df1.fillna('0')
         data[k] = df1
-        print(k+' ... [Done]')
+        print(k + ' ... [Done]')
     return data
 
 
@@ -101,17 +104,29 @@ def label_data(aname, df1, sess_size, pck_len):
     return df1
 
 
-def write_into_csv(data):
+def hex_convert_dec(data):
     """
-    Function: convert hex into dec and write the sessions bytes of each Application into csv.file
-    :param data: a Dict contain all df of each Application data={'app1':app1_df, ...}
-    """
+        Function:  convert hex into dec
+        :param data: a Dict contain all df of each Application data={'app1':app1_df, ...}
+        """
     for fname, df1 in data.items():
         hex_list = df1.to_numpy()
         dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
+        data[fname] = pd.DataFrame(dec_list)
+    return data
 
-        df1 = pd.DataFrame(dec_list)
-        df1.to_csv("../dataset/labeled_data/" + fname + ".csv")
+
+def write_into_csv(data):
+    """
+    Function:write the sessions bytes of each Application into csv.file
+    :param data: a Dict contain all df of each Application data={'app1':app1_df, ...}
+    """
+    for fname, df1 in data.items():
+        # hex_list = df1.to_numpy()
+        # dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
+
+        # df1 = pd.DataFrame(dec_list)
+        df1.to_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv")
         print(fname + ' ... [Done]')
 
 
@@ -125,9 +140,15 @@ if __name__ == "__main__":
     print("2. Merge session:")
     pList = session_merge(pData)
     print('---------------------------------------------')
+    # Add the Sequence of Packet info
+    # fun(pData, pList)
+    # print('---------------------------------------------')
     print("3. Format session:")
     sData = rawdata_format(pData, pList)
     print('---------------------------------------------')
-    print("4. Write into csv:")
-    write_into_csv(sData)
+    print("4. Decimal  conversion:")
+    dData = hex_convert_dec(sData)
+    print('---------------------------------------------')
+    print("5. Write into csv:")
+    write_into_csv(dData)
     print("\nPreprocessed finished cost time:%f" % (time.time() - start))

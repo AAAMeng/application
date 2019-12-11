@@ -9,12 +9,14 @@
 ------------      -------    --------    -----------
 2019/11/19 15:24      xm         1.0          None
 """
+import random
+import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
-from igraph.preAnalysis import read_from_csv
+from preAnalysis import read_from_csv
 
 app = dash.Dash(__name__)
 
@@ -55,6 +57,21 @@ def update_figure(input_value):
                 line_width=1))
     return {"data": traces,
             "layout": go.Layout(title='Byte Distribution(v.1.3)',
+                                # yaxis=dict(
+                                #     autorange=True,
+                                #     showgrid=True,
+                                #     zeroline=True,
+                                #     dtick=5,
+                                #     gridcolor='rgb(255, 255, 255)',
+                                #     gridwidth=5,
+                                #     zerolinecolor='rgb(255, 255, 255)',
+                                #     zerolinewidth=1,
+                                # ),
+                                # margin=dict(
+                                #     l=30,
+                                #     r=30,
+                                #     b=80
+                                # ),
                                 showlegend=True,
                                 autosize=True, )
             }, '(Start from 1)\nCurrent Byte: ' + str(int(input_value * 10))
