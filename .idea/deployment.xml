@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData">
+  <component name="PublishConfigData" autoUpload="Always" serverName="byr" filePermissions="420" folderPermissions="493" autoUploadExternalChanges="true">
     <serverData>
       <paths name="byr">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/application" local="$PROJECT_DIR$" />
+            <mapping deploy="/dataset" local="$PROJECT_DIR$/../dataset" />
           </mappings>
         </serverdata>
       </paths>
     </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
