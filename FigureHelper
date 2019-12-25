@@ -1,0 +1,175 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+"""
+@File    :   FigureHelper.py
+@Contact :   zhumeng@bupt.edu.cn
+@License :   (C)Copyright 2019 zhumeng
+
+@Modify Time      @Author    @Version    @Desciption
+------------      -------    --------    -----------
+2019/12/23 10:05      xm         1.0          None
+"""
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import os
+import pylab
+import io
+from scipy.stats import entropy
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import plotly.graph_objs as go
+import plotly.figure_factory as ff
+from preProcess import read_from_txt
+from dash.dependencies import Input, Output
+
+rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
+app_label = {
+    'Chrome': "0",
+    'WeChat': "1",
+    'Bilibili': "2",
+    'QQMusic': "3",
+    # 'SSH': "4",
+    # 'app2': "5",
+    # 'app3': "6",
+    # 'app4': "7",
+    # 'app5': "8",
+    # 'app6': "a",
+    # 'app7': "b",
+    # 'app8': "c"
+}
+
+
+# function:随机选取每个文件4个样本绘制灰度图
+def data2feature(f_name):
+    feature = f_name.to_numpy()
+    feature = feature[:, 1:]  # first row is index_num
+    np.random.shuffle(feature)  # 将流打乱(每行)
+    # feature = np.mean(feature[:sample_num], axis=0)  # select the first 20 packet to calculate mean
+    return feature
+
+
+def read_data():
+    feature = {}
+    for fname in app_label.keys():
+        feature[fname] = data2feature(pd.read_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv"))[:100]
+    return feature
+
+
+# def field_distribution_dash():
+#     """不同应用在相同字段(TTL, length...)的数值分布不同"""
+#     app = dash.Dash(__name__)
+#     mydata = {}
+#     for k, v in app_label.items():
+#         tmp = pd.read_csv(str(rootPath) + "dataset/labeled_data_simple/" + k + "_simple.csv")
+#         mydata[k] = tmp.reindex(np.random.permutation(tmp.index))  # random sort
+#     x_data = list(mydata.keys())
+#
+#     app.layout = html.Div([
+#         html.Div([html.H1("Byte Distribution for Different Application")], style={"textAlign": "center"}),
+#         dcc.Graph(id="my-graph"),
+#         html.Div([dcc.Slider(id="my-slider", min=1, max=18, marks={i: '{}'.format(10 * i) for i in range(1, 19)},
+#                              step=0.1, value=1, included=False, updatemode='drag')],
+#                  style={"display": "block", "margin-left": "auto", "margin-right": "auto", "width": "60%"}, ),
+#         html.Div(id='current_byte', style={'margin-top': 20})
+#     ])
+#
+#     @app.callback(
+#         [
+#             Output('my-graph', 'figure'),
+#             Output('current_byte', 'children')
+#         ],
+#         [Input('my-slider', 'value')])
+#     def update_figure(input_value):
+#         traces = []
+#         for xd in x_data:
+#             traces.append(
+#                 go.Box(
+#                     y=mydata.get(xd).iloc[0:500, int(input_value * 10)],
+#                     name=xd,
+#                     boxpoints='suspectedoutliers',
+#                     boxmean=True,
+#                     marker_size=2,
+#                     marker=dict(
+#                         outliercolor='rgba(219, 64, 82, 0.6)',
+#                         line=dict(
+#                             outliercolor='rgba(219, 64, 82, 0.6)',
+#                             outlierwidth=2)),
+#                     line_width=1))
+#         return {"data": traces,
+#                 "layout": go.Layout(title='Byte Distribution(v.1.3)',
+#                                     showlegend=True,
+#                                     autosize=True, )
+#                 }, '(Start from 1)\nCurrent Byte: ' + str(int(input_value * 10))
+#
+#     app.run_server(debug=True, host='0.0.0.0', port=8080)
+
+
+def packet_length_dash():
+    """Plot the byte distribution for each application【histogram】"""
+    app = dash.Dash()
+    mydata = read_from_txt(fillna=False, sample=True)
+    x_data = list(mydata.keys())
+    y_data = list(mydata.get(app).count(axis=1).values for app in x_data)
+    app.layout = html.Div([
+        html.Div([html.H1("Packet Length for Different Application")], style={"textAlign": "center"}),
+        dcc.Graph(
+            id='my-graph',
+            figure=ff.create_distplot(y_data, x_data, bin_size=20, histnorm='probability')
+        ),
+    ])
+    app.run_server(debug=True, host='0.0.0.0', port=8080)
+
+
+def byte_distribution_plot():
+    """Plot the byte distribution for each application【histogram】"""
+    features = read_data()
+    n_bins = 256
+    for aName, df in features.items():
+        fig, ax = plt.subplots(tight_layout=True)
+        x = features[aName].flatten()
+        e = entropy(x)  # calculate entropy and standard deviation
+        d = np.std(x, ddof=1)  # N - ddof 是用于计算样本标准差
+        # x = x[(x != 0) & (x != 3) & (x != 10)]
+        x = x[(x != 0)]  # ignore the zero value
+        plt.title("Byte Distribution for " + aName + "\n(entropy=" + str(e) + " ,std=" + str(d) + ")")
+        plt.hist(x, bins=n_bins, density=True, range=(0, 255), label=aName, alpha=0.75)
+        plt.xticks(np.arange(0, 260, 10), np.arange(0, 260, 10), fontsize=5)
+        ax.set_xlabel(aName)
+        ax.set_ylabel('Probability density')
+        plt.savefig(str(rootPath) + "figset/byte_distribution/bd_" + aName + ".png")
+
+
+def traffic_to_2d(sample_num=4):
+    """Plot 2D traffic data for each application"""
+    fig = plt.figure()
+    features = []
+    for fname in app_label.keys():
+        features.append(
+            data2feature(pd.read_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv"))[:sample_num])
+    imgs = np.concatenate([features[i] for i in range(len(features))], axis=0)
+    for i in range(len(features)):
+        for j in range(sample_num):
+            ax = fig.add_subplot(len(features), sample_num, i * sample_num + (j + 1))  # (row, col, sub_pos)
+            cla = (imgs[i * sample_num + j])[:-1]
+            img_title = list(app_label.keys())[i]
+            img = cla.reshape([40, 40])  # img = cla.reshape([41, 40])
+            ax.imshow(img, cmap='gray')
+            plt.axis("off")
+            plt.title(img_title)
+    plt.tight_layout()
+    plt.savefig(str(rootPath) + "figset/2d.png")
+
+
+if __name__ == "__main__":
+    '''
+    For dash: run the function, open web http://10.3.220.200:8080/
+    For plot: run the function, plot is store in xiaomeng/figset/...
+    '''
+    traffic_to_2d()
+    # field_distribution_dash()
+    # byte_distribution_plot()
+    # sequence_packet_plot()
