@@ -109,9 +109,9 @@ def read_data():
 
 
 def packet_length_dash():
-    """Plot the byte distribution for each application【histogram】"""
+    """Plot the packet length distribution for each application【histogram】"""
     app = dash.Dash()
-    mydata = read_from_txt(fillna=False, sample=True)
+    mydata = read_from_txt(fillna=False)
     x_data = list(mydata.keys())
     y_data = list(mydata.get(app).count(axis=1).values for app in x_data)
     app.layout = html.Div([
@@ -131,12 +131,13 @@ def byte_distribution_plot():
     for aName, df in features.items():
         fig, ax = plt.subplots(tight_layout=True)
         x = features[aName].flatten()
-        e = entropy(x)  # calculate entropy and standard deviation
-        d = np.std(x, ddof=1)  # N - ddof 是用于计算样本标准差
-        # x = x[(x != 0) & (x != 3) & (x != 10)]
+        # x = x[(x != 0) & (x != 10)]
+        e = round(entropy(x), 2)  # calculate entropy and standard deviation
+        d = round(np.std(x, ddof=1), 2)  # N - ddof 是用于计算样本标准差
+        print(aName, e, d)
         x = x[(x != 0)]  # ignore the zero value
         plt.title("Byte Distribution for " + aName + "\n(entropy=" + str(e) + " ,std=" + str(d) + ")")
-        plt.hist(x, bins=n_bins, density=True, range=(0, 255), label=aName, alpha=0.75)
+        plt.hist(x, bins=n_bins, density=True, range=(0, 255), label=aName)
         plt.xticks(np.arange(0, 260, 10), np.arange(0, 260, 10), fontsize=5)
         ax.set_xlabel(aName)
         ax.set_ylabel('Probability density')
@@ -169,7 +170,8 @@ if __name__ == "__main__":
     For dash: run the function, open web http://10.3.220.200:8080/
     For plot: run the function, plot is store in xiaomeng/figset/...
     '''
-    traffic_to_2d()
+    # traffic_to_2d()
     # field_distribution_dash()
-    # byte_distribution_plot()
+    # packet_length_dash()
+    byte_distribution_plot()
     # sequence_packet_plot()

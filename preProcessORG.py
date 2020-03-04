@@ -9,10 +9,10 @@ proxy_port = tuple(('7a', '31'))
 # txt_file = "../dataset/raw_data/"+appName+".txt"
 # csv_file = "../dataset/labeled_data/"+appName+".csv"
 app_label = {
-    'Chrome': "0",
-    'WeChat': "1",
+    # 'Chrome': "0",
+    # 'WeChat': "1",
     'Bilibili': "2",
-    'QQMusic': "3",
+    # 'QQMusic': "3",
     # 'app1': "5",
     # 'app2': "6",
     # 'app3': "7",
@@ -126,7 +126,7 @@ def write_into_csv(data):
         # dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
 
         # df1 = pd.DataFrame(dec_list)
-        df1.to_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv")
+        df1.to_csv(str(rootPath) + "dataset/raw_data_simple/" + fname + ".csv")
         print(fname + ' ... [Done]')
 
 

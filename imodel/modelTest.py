@@ -10,8 +10,6 @@
 2019/11/21 15:05      xm         1.0          None
 """
 import sys
-
-sys.path.append("..")
 import tensorflow as tf
 import numpy as np
 import time
@@ -21,7 +19,9 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
-
+import warnings
+warnings.filterwarnings("ignore")
+rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
 tf.compat.v1.disable_v2_behavior()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 proxy_port = tuple(('7a', '31'))
@@ -64,7 +64,7 @@ def discard_fiv_tuple(data):
 def read_data():
     feature = []
     for fname in app_label.keys():
-        df = pd.read_csv("../../dataset/labeled_data/" + fname + ".csv")
+        df = pd.read_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv")
         feature.append(data2feature(df))
         print(fname + " count:" + str(df.shape[0]))
     return feature
@@ -101,9 +101,6 @@ learning_rate = 0.0005
 img_shape = 40 * 40
 classes_num = 4
 batch_size = tf.compat.v1.placeholder(tf.int32, [])
-lstm_input_size = 160
-lstm_timestep_size = 10
-lstm_hidden_layers = 2
 train_iter = 3000
 
 # cnn network
@@ -281,5 +278,3 @@ conf_fig = sn.heatmap(conf_df, annot=True, fmt="d", cmap="BuPu")  # 绘制 heatm
 conmat = tf.math.confusion_matrix(mlabel, preLabel)
 print("\nConfusion Matrix:")
 print(conmat)
-
-
