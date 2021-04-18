@@ -1,0 +1,66 @@
+# -*- coding: utf-8 -*-
+import time
+import numpy as np
+import pandas as pd
+import os
+
+rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
+proxy_port = tuple(('7a', '31'))
+
+app_label = {
+    # 'Chrome': "0",
+    # 'Bilibili': "1",
+    'WeChat': "2",
+    # 'QQMusic': "3",
+    # 'SSH': "4",
+    # 'IQIYI': "4",
+    # 'YouKu': "5",
+}
+
+
+def read_from_S2I():
+    """
+    Function: read data from labeled_data_S2I which consist [size*10, interval-time*10, bi-direction*10, label]
+    :return: a Dict contain all DataFrame of each Application. s.t. data={'app1':app1_df, ...}
+    """
+    S2Idata = {}
+    for fname in app_label.keys():
+        df = pd.read_csv(str(rootPath) + "dataset/labeled_data_S2I/" + fname + ".csv", header=None)
+        S2Idata[fname] = df.to_numpy()
+    return S2Idata
+
+
+def ml_feature(data):
+    """
+    Function: according the ip to obtain the sequence of packet in a session
+    :param data: a Dict contain all DataFrame of each Application. s.t. data={'app1':app1_df, ...}
+    :param lists: lists[Chrome] = {port1:[1,2,10,33,....], port2:[3,4,5,6,....],...}
+    :return: the sequence of packet size，inter-arrival time，direction of a bidirectional flow
+    """
+
+    for aName, dd in data.items():
+        s = np.array([np.arange(0, 10)])
+        for d in dd:
+            size = np.trim_zeros(d[0:10])
+            time = np.trim_zeros(d[10:20])
+            tmp = d[20:30]
+            r1 = len(tmp[tmp == 1])
+            r2 = max(1, len(tmp[tmp == -1]))
+            row = [np.mean(size), np.std(size), np.amin(d[0:10]), np.amax(d[0:10]), np.mean(time), np.std(time),
+                   np.amin(d[10:20]), np.amax(d[10:20]), r1 / r2, d[30]]
+            s = np.concatenate((s, np.array([row])), axis=0)
+        result = pd.DataFrame(s[1:], columns=s[0])
+        result.fillna(0).to_csv(str(rootPath) + "dataset/labeled_data_ML/" + aName + ".csv", header=None, index=False)
+        print(aName + ' ... [Done]')
+
+
+if __name__ == "__main__":
+    pd.set_option('mode.chained_assignment', None)
+    start = time.time()
+    print("--------------------START--------------------")
+    print("1. Read from txt:")
+    pData = read_from_S2I()
+    print('---------------------------------------------')
+    print("3. Seq2Img features:")
+    ml_feature(pData)
+    print("\nPreprocessed finished cost time:%f" % (time.time() - start))

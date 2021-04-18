@@ -6,21 +6,15 @@ import os
 
 rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
 proxy_port = tuple(('7a', '31'))
-# txt_file = "../dataset/raw_data/"+appName+".txt"
-# csv_file = "../dataset/labeled_data/"+appName+".csv"
+
 app_label = {
-    # 'Chrome': "0",
-    # 'WeChat': "1",
+    'Chrome': "0",
+    'WeChat': "1",
     'Bilibili': "2",
-    # 'QQMusic': "3",
-    # 'app1': "5",
-    # 'app2': "6",
-    # 'app3': "7",
-    # 'app4': "8",
-    # 'app5': "9",
-    # 'app6': "a",
-    # 'app7': "b",
-    # 'app8': "c"
+    'QQMusic': "3",
+    'QQ': "4",
+    'IQIYI': "5",
+    'YouKu': "6",
 }
 
 
@@ -33,7 +27,7 @@ def read_from_txt(fillna=True):
     # DataFrame Initialization
     data = {}
     for k, v in app_label.items():
-        df1 = pd.read_csv(str(rootPath) + "dataset/raw_data_simple/" + k + ".txt", sep="\n", header=None,
+        df1 = pd.read_csv(str(rootPath) + "dataset/raw_data/" + k + ".txt", sep="\n", header=None,
                           engine='python',
                           skiprows=lambda x: x % 4 != 2, dtype='str')  # read from csv data
         df1 = df1[0].str.split('  ', expand=True)
@@ -106,9 +100,9 @@ def label_data(aname, df1, sess_size, pck_len):
 
 def hex_convert_dec(data):
     """
-        Function:  convert hex into dec
-        :param data: a Dict contain all df of each Application data={'app1':app1_df, ...}
-        """
+    Function:  convert hex into dec
+    :param data: a Dict contain all df of each Application data={'app1':app1_df, ...}
+    """
     for fname, df1 in data.items():
         hex_list = df1.to_numpy()
         dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
@@ -122,33 +116,26 @@ def write_into_csv(data):
     :param data: a Dict contain all df of each Application data={'app1':app1_df, ...}
     """
     for fname, df1 in data.items():
-        # hex_list = df1.to_numpy()
-        # dec_list = [[int(hex_list[i][j], 16) for j in range(len(hex_list[i]))] for i in range(len(hex_list))]
-
-        # df1 = pd.DataFrame(dec_list)
-        df1.to_csv(str(rootPath) + "dataset/raw_data_simple/" + fname + ".csv")
+        df1.to_csv(str(rootPath) + "dataset/labeled_data_ORG/" + fname + ".csv",  mode='a', header=None, index=False)
         print(fname + ' ... [Done]')
 
 
 if __name__ == "__main__":
     pd.set_option('mode.chained_assignment', None)
     start = time.time()
-    print("--------------------START--------------------")
+    # print("--------------------START--------------------")
     print("1. Read from txt:")
     pData = read_from_txt()
     print('---------------------------------------------')
-    print("2. Merge session:")
+    print("2. Merge flow:")
     pList = session_merge(pData)
     print('---------------------------------------------')
-    # Add the Sequence of Packet info
-    # fun(pData, pList)
-    # print('---------------------------------------------')
-    print("3. Format session:")
+    print("3. Format flow:")
     sData = rawdata_format(pData, pList)
     print('---------------------------------------------')
-    print("4. Decimal  conversion:")
+    print("4. Transfer dimension:")
     dData = hex_convert_dec(sData)
     print('---------------------------------------------')
-    print("5. Write into csv:")
+    print("5. Label flow:")
     write_into_csv(dData)
     print("\nPreprocessed finished cost time:%f" % (time.time() - start))

@@ -6,9 +6,11 @@ import pandas as pd
 rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
 app_label = {
     'Chrome': "0",
-    'WeChat': "1",
-    'Bilibili': "2",
+    'Bilibili': "1",
+    'WeChat': "2",
     'QQMusic': "3",
+    'IQIYI': "4",
+    'YouKu': "5",
 }
 
 
@@ -22,7 +24,7 @@ def data2feature(f_name):
 def read_data():
     feature = []
     for fname in app_label.keys():
-        df = pd.read_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv")
+        df = pd.read_csv(str(rootPath) + "dataset/labeled_data_ML/" + fname + ".csv", header=None)
         feature.append(data2feature(df))
         print(fname + " count:" + str(df.shape[0]))
     Data = np.concatenate([feature[i] for i in range(len(feature))], axis=0)

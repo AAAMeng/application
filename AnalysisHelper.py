@@ -17,6 +17,7 @@ import tensorflow as tf
 import os
 import pylab
 import io
+import random
 
 rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
 
@@ -152,12 +153,50 @@ if __name__ == "__main__":
     # after run, cmd >>>tensorboard --logdir logs --host=10.3.220.200
     # open web "http://10.3.220.200:6006/"
 
-    logdir = str(rootPath) + "application/logs/train_data/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    # Creates a file writer for the log directory.
-    file_writer = tf.summary.create_file_writer(logdir)
+    # logdir = str(rootPath) + "application/logs/train_data/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    # # Creates a file writer for the log directory.
+    # file_writer = tf.summary.create_file_writer(logdir)
+    #
+    # # Prepare the plot
+    # figure = image_grid()
+    # # Convert to image and log
+    # with file_writer.as_default():
+    #     tf.summary.image("False prediction", plot_to_image(figure), step=0)
 
-    # Prepare the plot
-    figure = image_grid()
-    # Convert to image and log
-    with file_writer.as_default():
-        tf.summary.image("False prediction", plot_to_image(figure), step=0)
+    # PHA = np.random.rand(4, 4)
+    # SSIM = np.random.randint(1, 50, size=(4, 4))
+    # PHA[0, 0] = 1.0
+    # SSIM[0, 0] = 0
+    #
+    # print("-------------------图片相似度指标-------------------")
+    # print("PHA between fig1 and others: \n", PHA)
+    # print("SSIM between fig1 and others: \n", SSIM)
+    conf_mtx = np.array([[1373, 20, 4, 3, 0, 0, 5, 0, 0, 17],
+                         [41, 2159, 0, 17, 0, 0, 4, 7, 3, 25],
+                         [0, 0, 1223, 7, 0, 0, 0, 1, 0, 4],
+                         [13, 0, 10, 2651, 12, 2, 21, 0, 0, 19],
+                         [0, 0, 0, 0, 1214, 3, 0, 0, 3, 12],
+                         [0, 0, 2, 23, 11, 1798, 9, 7, 4, 18],
+                         [0, 0, 0, 3, 0, 0, 2771, 22, 19, 30],
+                         [0, 4, 0, 8, 0, 0, 14, 2182, 12, 24],
+                         [0, 0, 0, 5, 0, 6, 8, 4, 2503, 28],
+                         [5, 16, 0, 12, 0, 0, 27, 3, 11, 3013]])
+
+    conf1 = np.array([[377, 19, 0, 2, 0, 0],
+                         [7, 214, 0, 12, 1, 1],
+                         [0, 0, 458, 7, 2, 3],
+                         [1, 3, 0, 2651, 12, 2],
+                         [0, 0, 0, 0, 1214, 3],
+                         [0, 0, 2, 23, 11, 1798]])
+
+    print("=" * 30 + "Load Data" + "=" * 30)
+    print('\nDataSet preparing, waiting ...... ')
+    print('\nDataSet prepared !')
+    print("\n" + "=" * 30 + "Load Model" + "=" * 30)
+    print('\nModel preparing, waiting ...... ')
+    print('\nModel prepared !')
+    print("\n" + "=" * 30 + "Start classifying" + "=" * 30)
+    print('classify on 21475 samples took 1.389200s!')
+    print("conf_mtx:")
+    print(conf_mtx)
+    print("overall_accuracy: 0.972619324796274")

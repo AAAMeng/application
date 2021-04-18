@@ -18,12 +18,18 @@ from iclass.dataSet import DataSet
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import recall_score
 import seaborn as sn
 import warnings
+
 warnings.filterwarnings("ignore")
 rootPath = os.path.abspath(os.path.dirname(__file__)).split('application')[0]  # /home/byr/xiaomeng/
 tf.compat.v1.disable_v2_behavior()
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = '3'
 proxy_port = tuple(('7a', '31'))
 # appName = 'Chrome'
 # txt_file = "../dataset/raw_data_simple/" + appName + ".txt"
@@ -33,7 +39,7 @@ app_label = {
     'WeChat': "1",
     'Bilibili': "2",
     'QQMusic': "3",
-    # 'app1': "5",
+    'SSH': "4",
     # 'app2': "6",
     # 'app3': "7",
     # 'app4': "8",
@@ -64,9 +70,10 @@ def discard_fiv_tuple(data):
 def read_data():
     feature = []
     for fname in app_label.keys():
-        df = pd.read_csv(str(rootPath) + "dataset/labeled_data/" + fname + ".csv")
+        df = pd.read_csv(str(rootPath) + "dataset/labeled_data_TSS/" + fname + ".csv")
         feature.append(data2feature(df))
         print(fname + " count:" + str(df.shape[0]))
+
     return feature
 
 
@@ -98,10 +105,10 @@ def labels_transform(mlist, classes):
 
 # parameter
 learning_rate = 0.0005
-img_shape = 40 * 40
-classes_num = 4
+img_shape = 40 * 41  # 原本是40*41
+classes_num = 5
 batch_size = tf.compat.v1.placeholder(tf.int32, [])
-train_iter = 3000
+train_iter = 1000
 
 # cnn network
 _X = tf.compat.v1.placeholder(tf.float32, [None, img_shape])
@@ -130,8 +137,8 @@ def max_pool(x):
 
 
 # Input Layer:40*40*1
-cnn_input = tf.reshape(_X, [-1, 40, 40, 1])
-
+# cnn_input = tf.reshape(_X, [-1, 40, 40, 1])
+cnn_input = tf.reshape(_X, [-1, 40, 41, 1])
 # Conv1 Layer
 W_conv1 = weight_variable([5, 5, 1, 32])
 b_conv1 = bias_variable([32])
@@ -209,21 +216,15 @@ for i in range(train_iter):
 print("\n training finished cost time:%f" % (time.time() - start))
 # ============================MODEL TEST===================================
 test_accuracy = 0
-true_positives = 0
-false_positives = 0
-true_negatives = 0
-false_negatives = 0
-ac = 0
 test_batch_size = 200
 preLabel = []
 mlabel = []
-test_iter = len(data_test) // test_batch_size + 1
+test_iter = len(data_test) # test_batch_size + 1
 begin = 0
 end = test_batch_size
 # mydata_test = DataSet(data_test, label_test)
 print("\n" + "=" * 50 + "Begin test" + "=" * 50)
 test_start = time.time()
-
 # batch = mydata_test.next_batch(test_batch_size, shuffle=False)  # no need to shuffle in test period
 # batch[0] = data_test
 while begin < len(data_test):
@@ -235,22 +236,12 @@ while begin < len(data_test):
     mlabel = mlabel + list(label_batch)
     labels = labels_transform(label_batch, classes_num)
 
-    e_accuracy = sess.run(accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    # tensor_tp, value_tp = sess.run(TP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    # tensor_fp, value_fp = sess.run(FP, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    # tensor_tn, value_tn = sess.run(TN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    # tensor_fn, value_fn = sess.run(FN, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
-    # accuracy_new, value_ac = sess.run(tf_accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: test_batch_size})
+    e_accuracy = sess.run(accuracy, feed_dict={_X: data_batch, y: labels, keep_prob: 1.0, batch_size: len(data_batch)})
 
     preLabel = preLabel + list(sess.run(predictions["classes"], feed_dict={_X: data_batch, y: labels, keep_prob: 1.0,
-                                                                           batch_size: test_batch_size}))
+                                                                           batch_size: len(data_batch)}))
 
     test_accuracy = test_accuracy + e_accuracy
-    # true_positives = true_positives + value_tp
-    # false_positives = false_positives + value_fp
-    # true_negatives = true_negatives + value_tn
-    # false_negatives = false_negatives + value_fn
-    # print(value_tp, value_fp, value_tn, value_fn)
 
 # ============================TEST METRIC===================================
 print("\n test cost time :%d" % (time.time() - test_start))
@@ -260,21 +251,66 @@ print("\n test accuracy :%f" % (test_accuracy / test_iter))
 print("\n" + "=" * 50 + "  DataSet Describe  " + "=" * 50)
 print("\nAll DataSet Number:%s ; Training DataSet Number:%s ; Test DataSet Number:%s" % (
     len(x_raw), len(data_train), len(data_test)))
-# mP = true_positives / (true_positives + false_positives)
-# mR = true_positives / (true_positives + false_negatives)
-# mF1_score = 2 * mP * mR / (mP + mR)
-# print("\nPrecision:%f" % mP)
-# print("\nRecall:%f" % mR)
-# print("\nF1-Score:%f" % mF1_score)
 with tf.compat.v1.Session() as sess:
     conf = tf.math.confusion_matrix(mlabel, preLabel, num_classes=classes_num)  # 计算混淆矩阵
-    print(conf.eval())
+    conf_mtx = conf.eval()  # 将 Tensor 转化为 NumPy
 
-    conf_numpy = conf.eval()  # 将 Tensor 转化为 NumPy
+# conf_df = pd.DataFrame(conf_numpy, index=app_label.keys(), columns=app_label.keys())  # 将矩阵转化为 DataFrame
+# conf_fig = sn.heatmap(conf_df, annot=True, fmt="d", cmap="BuPu")  # 绘制 heatmap
 
-conf_df = pd.DataFrame(conf_numpy, index=app_label.keys(), columns=app_label.keys())  # 将矩阵转化为 DataFrame
-conf_fig = sn.heatmap(conf_df, annot=True, fmt="d", cmap="BuPu")  # 绘制 heatmap
-
-conmat = tf.math.confusion_matrix(mlabel, preLabel)
 print("\nConfusion Matrix:")
-print(conmat)
+print(conf_mtx)
+
+correct_num = []
+for r, w in enumerate(conf_mtx):
+    correct_num.append(w[r])
+
+
+def num2str(data):
+    str_data = []
+    for x in data:
+        str_data.append(str(round(x, 4)))
+    my_str = ", ".join(str_data)
+    return my_str
+
+
+total_num = []
+label_test = label_test.tolist()
+correct_num = np.asarray(correct_num)
+for i in range(classes_num):
+    total_num.append(label_test.count(i))
+total_num = np.asarray(total_num)
+accuracy = accuracy_score(mlabel, preLabel)
+top1_precision = precision_score(mlabel, preLabel, average=None)
+top1_recall = recall_score(mlabel, preLabel, average=None)
+top1_f1_score = f1_score(mlabel, preLabel, average=None)
+pr = top1_precision * top1_recall
+apr = (correct_num / total_num) * top1_precision * top1_recall
+target_names = ['class 0', 'class 1', 'class 2', 'class 3', 'class 4']
+report = classification_report(mlabel, preLabel, target_names=target_names)
+
+print(report)
+print("accuracy            :", accuracy)
+print('e_accuracy		   :', num2str(correct_num / total_num))
+print("precision 		   :", num2str(top1_precision))
+print("recall 			   :", num2str(top1_recall))
+print('f1-socre 		   :', num2str(top1_f1_score))
+print('precision_recall    :', num2str(pr))
+print('acc_precision_recall:', num2str(apr))
+
+with open(str(rootPath) + "application/imodel/MODEL_ORG.txt", 'w', encoding='utf-8') as f:
+    f.write("\n****************************ORGMODEL****************************\n")
+    f.write(report)
+    # f.write("\naccuracy :\n")
+    # f.write(str(round(accuracy, 4)))
+    # f.write("\neach accuracy:\n")
+    # f.write(num2str(correct_num / total_num))
+    # f.write('\nprecision :\n')
+    # f.write(num2str(top1_precision))
+    # f.write("\nrecall :\n")
+    # f.write(num2str(top1_recall))
+    # f.write('\nf1-socre :\n')
+    # f.write(num2str(top1_f1_score))
+    f.write("\n*****************************************************************")
+
+print("done!")
